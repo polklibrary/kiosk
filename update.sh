@@ -1,2 +1,2 @@
-
-echo "HELLO WORLD"
+echo "Retrieving Updates"
+svn update
