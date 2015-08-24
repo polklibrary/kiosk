@@ -108,7 +108,7 @@ li {
 	left: 0px;
 	width: 25%;
 	height: 90%;
-	border-right: solid 1px red;
+	border-right: solid 1px #666666;
 	background: url('images/testbg2.png');
 	z-index: 1;
 }
