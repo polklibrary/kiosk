@@ -64,8 +64,7 @@ li {
 	width:100%;
 	height:10%;
 	border-bottom: 1px solid #666666;
-	/*box-shadow: 0px 4px 4px #959595;*/
-	box-shadow: 0px 4px 4px red;
+	box-shadow: 0px 4px 4px #959595;
 	background: url('images/testbg2.png');
 	z-index: 1;
 }
@@ -109,7 +108,7 @@ li {
 	left: 0px;
 	width: 25%;
 	height: 90%;
-	border-right: solid 1px #666666;
+	border-right: solid 1px red;
 	background: url('images/testbg2.png');
 	z-index: 1;
 }
