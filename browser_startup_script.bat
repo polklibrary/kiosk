@@ -1,6 +1,7 @@
 timeout 10
 
-"C:\cygwin64\bin\bash.exe" "C:\svn\github\kiosk\trunk\update.sh" 
+cd "C:\svn\github\kiosk\trunk"
+"C:\cygwin64\bin\svn.exe" update
 
 timeout 10
 "C:\Users\lab\Desktop\Kiosk Mode - Chrome.lnk"
