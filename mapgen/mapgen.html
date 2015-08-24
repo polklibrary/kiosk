@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<script src="../jquery-1.10.2.min.js"></script>
+	<script src="mapgen.js"></script>
+	<title>Polk Library Kiosk Map Generator</title>
+	<style>
+		img {
+			display: none;
+			max-width: 100%;
+		}
+		
+		.blip{
+			position: absolute;
+			width: 10px;
+			height: 10px;
+			background-color: #7db2ce;
+			border-radius: 50%;
+		}
+		
+		#end{
+			background-color: #bf2e1a;
+			width: 15px;
+			height: 15px;
+		}
+		
+		#vbar{
+			position: absolute;
+			background-color: red;
+			width: 1px;
+			height: 600%;
+			top: 0px;
+			display: none;
+			pointer-events: none;
+			overflow-y: hide;
+		}
+		#hbar{
+			position: absolute;
+			background-color: red;
+			width: 600%;
+			height: 1px;
+			left: 0px;
+			display: none;
+			pointer-events: none;
+			overflow-x: hide;
+		}
+		
+	</style>
+</head>
+<body>
+	<div id="vbar"></div>
+	<div id="hbar"></div>
+	<textarea id="output" cols="60" rows="10"></textarea><br/>
+	<input id="x" type="number" min=1 value=100>X grid</input><br/>
+	<input id="y" type="number" min=1 value=50>Y grid</input><br/>
+	Image: <input type="file" id="image" />
+	<select id="select">
+		<option value="0">Select Destination</option>
+		<option value="floor3">Floor 3</option>
+		<option value="floor2">Floor 2</option>
+		<option value="floor1">Floor 1</option>
+		<option value="basement">Basement</option>
+	</select>
+	<div id="maparea">
+		<img id="floor3" src="../images/floor3.png">
+		<img id="floor2" src="../images/floor2.png">
+		<img id="floor1" src="../images/floor1.png">
+		<img id="basement" src="../images/basement.png">
+	</div>
+
+</body>
+</html>

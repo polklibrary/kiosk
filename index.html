@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0;  user-scalable=no" name="viewport">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+		<script src="jquery-1.10.2.min.js"></script>
+		<script src="jquery.tcycle.js"></script>	
+		<link rel="stylesheet" type="text/css" href="kiosk.css"/>
+		<script src="mapdata.js"></script>
+		<script src="kiosk.js"></script>
+        
+        <script type="text/javascript">
+            LoadUniversalAnalytics = function(file, callback) {
+                var s = document.createElement('script');
+                s.type = 'text/javascript';
+                s.src = document.location.protocol + '//polk2.uwosh.edu/analytics/' + file;
+                s.onload = callback;
+                document.getElementsByTagName('head')[0].appendChild(s);
+            };
+
+            LoadUniversalAnalytics('uat.js', function() {
+                LoadUniversalAnalytics('pas.js', function() {
+                    LoadUniversalAnalytics('ua_kiosk.js');
+                });
+            });
+        </script>
+        
+		<title>Polk Library Kiosk</title>
+	</head>
+	<body class="cursor-off" tabindex="0">
+	
+		<a id="refresh" href="http://localhost/kiosk"><span>Refreshing Kiosk</span><br /><img src="images/refresh.png"></a>
+
+		<div id="attract-container" class="tcycle" data-fx="fade" data-speed="1000" data-scss='{"width":"100%","height":"100%","z-index":"50","background-color":"black"}'>
+			<!-- Attract Ads: Put all references here -->
+			<img src="ads/attract1.jpg">
+			<!-- <img src="ads/attract2.jpg"> -->
+		</div>
+
+		<div id="feature-container">
+			<!-- Feature Ads: Leave empty, source is loaded from kiosk.js feature list -->
+			<img src="">
+		</div>
+		
+        <!-- Direction overlay backdrop stuff -->
+        <img id="back-touch" src="images/touchreturn.png">
+		<div id="back-shadow"></div>
+		
+		<div id="map-box">
+			<div id="blip"></div>
+			<div id="bliptitle"></div>
+			<img id="floor3-image" src="images/floor3.png">
+			<img id="floor2-image" src="images/floor2.png">
+			<img id="floor1-image" src="images/floor1.png">
+			<img id="basement-image" src="images/basement.png">
+		</div>
+		<div id="secret"><img src="images/astley.gif"><div style="color: #00FF00; font-family: 'Comic Sans MS';">You found Kioskbot Polkthousand! Congratulations!</div></div>
+		<div id="map-location-box">
+			<div id="map-location-box-image">
+			<div id="map-location-box-arrow-left"></div>
+				<img id="map-location-image">
+			<div id="map-location-box-arrow-right"></div>
+			</div>
+		</div>
+		
+		<div id="header" class="light-grey">
+			<img id="header-logo" src="images/polk_logo.png"></img>
+			<span id="header-hours"></span>
+		</div>
+		
+		<div id="sidebar" class="light-grey">
+			<ul>
+				<li class="tab" id="hours-tab">Hours</li>
+				<li class="tab" id="computers-tab">Computers</li>
+				<li class="tab" id="directions-tab">Directions</li>
+				<li class="tab" id="groups-tab">Study Groups</li>
+                <!--<li class="tab" id="shuttle-tab">Campus Shuttle</li>-->
+			</ul>
+			<div id="kiosk-tips">
+				
+			</div>
+			<div id="kiosk-tips-quote-thingy">
+				
+			</div>
+			<div style="text-align:right; margin: 0px auto; width: 75%; font-weight:bold; font-size: 19px;">Kiosk Tips</div>
+		</div>
+
+		<div id="content-pane">
+			<div class="content-section" id="hours-div">
+				<div class="sign">
+					<div class="sign-header">
+						Library Hours
+					</div>
+					<div id="hours-shadow"></div>
+					<div id="left-hours" class="dark-grey">
+						<ul>
+						</ul>
+					</div>
+					<div id="right-hours" class="dark-grey">
+						<ul>					
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			<div class="content-section" id="computers-div">
+				<div class="sign">
+					<div class="sign-header">
+						Computer Availability
+					</div>
+					<div id="computers-container" class="dark-grey">
+                        <!-- Handle Iframe load by JS iframeLoad() -->
+						<iframe id="computer-availability" src="" frameBorder="0"> </iframe>
+                        <div id="computer-availability-failure">Computer availability is currently unavailable.</div>
+                    </div>
+				</div>
+			</div>
+			<div class="content-section" id="directions-div">
+				<div class="sign">
+					<div class="sign-header">
+						Directions
+					</div>
+					
+					<table id="directions-table" class="">
+						<tr>
+							<td id="admin-box"><img src="directions/administrative-offices.jpg"><span>Administrative Office</span></td>
+							<td id="archives-box"><img src="directions/archives.jpg"><span>Archives</span></td>
+							<td id="circulation-box"><img src="directions/circulationdesk.jpg"><span>Circulation Desk</span></td>
+							<td id="cbasement-box"><img src="directions/classrooms.jpg"><span>Classrooms 019-023</span></td>
+							<td id="psychologyclass-box"><img src="directions/classrooms.jpg"><span>Classroom 072</span></td>
+							<td id="counselingclass-box"><img src="directions/classrooms.jpg"><span>Classrooms 079-080</span></td>
+						</tr>
+						<tr>
+							<td id="c116a-box"><img src="directions/classrooms.jpg"><span>Classroom 116a</span></td>
+							<td id="c116b-box"><img src="directions/classrooms.jpg"><span>Classroom 116b</span></td>
+							<td id="c201f-box"><img src="directions/classroomred.jpg"><span>Classroom 201f</span></td>
+							<td id="c202-box"><img src="directions/classrooms.jpg"><span>Classroom 202</span></td>
+							<td id="emc-box"><img src="directions/emc.jpg"><span>Education Materials Center</span></td>
+							<td id="LGR-box"><img src="directions/groupstudyroomblue.jpg"><span>Group Study Room <br /> Large</span></td>
+						</tr>
+						<tr>
+							<td id="SGR-box"><img src="directions/groupstudyroomred.jpg"><span>Group Study Room <br /> Small</span></td>
+							<td id="3FNGR-box"><img src="directions/groupstudyroomred.jpg"><span>Group Study Room <br /> 3rd Floor North</span></td>
+							<td id="3FSGR-box"><img src="directions/groupstudyroomblue.jpg"><span>Group Study Room <br /> 3rd Floor South</span></td>
+							<td id="reference-box"><img src="directions/reference.jpg"><span>Information Desk</span></td>
+							<td id="learning-box"><img src="directions/learningtechnologies.jpg"><span>Learning Technologies</span></td>
+							<td id="leisure-box"><img src="directions/leisurereading.jpg"><span>Leisure Reading</span></td>
+						</tr>
+						<tr>
+							<td id="counseling-box"><img src="directions/professionalcounseling.jpg"><span>Professional Counseling</span></td>
+							<td id="freud-box"><img src="directions/psychology.jpg"><span>Psychology</span><br /></td>
+							<td id="quiet2f-box"><img src="directions/quietstudy.jpg"><span>Quiet Study Area <br /> 2nd Floor North</span></td>
+							<td id="quiet-box"><img src="directions/quietstudy.jpg"><span>Quiet Study Area <br /> 3rd Floor North</span></td>
+							<td id="testing-box"><img src="directions/testingcenter.jpg"><span>Testing Services</span></td>
+							<td class="empty no-action"></td>
+						</tr>
+					</table>
+					
+				</div>
+			</div>
+			<div class="content-section" id="groups-div">
+				<div class="sign">
+					<div class="sign-header">
+						Today's Study Group Room Schedule
+					</div>
+					<table id="groups-table">
+						<tr class="dark-grey">
+							<th width="10%"></th>
+							<th class="group-col" width="20%">Small Group Room</th>
+							<th class="group-col" width="20%">Large Group Room</th>
+							<th class="group-col" width="20%">3rd Floor North Group Room</th>
+							<th class="group-col" width="20%">3rd Floor South Group Room</th>
+						</tr>
+					</table>
+					<span id="groups-info">To reserve a room for your study group, please visit the circulation desk.</span>
+				</div>
+			</div>
+			<!--<div class="content-section" id="shuttle-div">
+				<div class="sign">
+					<div class="sign-header">
+						Campus Shuttle
+					</div>
+					<div id="shuttle-container" class="dark-grey">
+                        <iframe id="transit" src="http://www.uworide.com/default.aspx" width="600" height="400" ></iframe>
+						<div id="shuttle-container-cell">
+							<img src="images/shuttlemapandtimes.png">
+						</div>
+					</div>
+				</div>
+			</div>-->
+		</div>
+        
+    <!--	Clickheat script, uncomment to enable clickheat	
+		<script type="text/javascript" src="http://localhost/clickheat/js/clickheat.js"></script><noscript><p><a href="http://www.dugwood.com/index.html">CMS</a></p></noscript><script type="text/javascript">
+			setTimeout(function(){
+				clickHeatSite = 'kiosk';clickHeatGroup = currentTab;clickHeatServer = 'http://localhost/clickheat/click.php';initClickHeat(); 
+				$("#hours-tab").click(function(){clickHeatGroup = "hours"});
+				$("#computers-tab").click(function(){clickHeatGroup = "computers"});
+				$("#directions-tab").click(function(){clickHeatGroup = "directions"});
+				$("#groups-tab").click(function(){clickHeatGroup = "groups"});
+			}, 500);
+		</script>
+	-->	
+	</body>
+</html>
