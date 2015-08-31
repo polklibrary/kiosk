@@ -23,11 +23,11 @@ var groupRoomIDs = {"Small Group Room" : "sgr", "Large Group Room" : "lgr", "3rd
 
 var attractTimeout = {};
 // Seconds to wait before entering attract mode (since last interaction)
-var attractWait = 120; // 15min=900
+var attractWait = 90; // 15min=900
 // Seconds to wait before hiding attract mode to show the next tab
-var hideWait = 10;
+var hideWait = 10; //10
 // Seconds to show tab for before going back into attract mode
-var showWait = 30;
+var showWait = 10; //30
 
 var blipTimeout = {};
 var closeMapTimeout = {};
@@ -48,7 +48,7 @@ var tipData = {
 		"hours" : "The hours listed show the current day and upcoming days the library is open.",
 		"computers" : "The map displayed shows which computers are currently available or unavailable throughout the library. Tapping on a library wing will show more detailed maps of each area.",
 		"directions" : "To get detailed directions to any of the locations displayed, simply touch the location.",
-		"groups" : "The schedule for the group rooms currently reserved for the day. To reserve a room, please visit the circulation desk.  To get directions to a room, try <span id=\"donttap\">tapping</span> a reservation.",
+		"groups" : "<span id=\"donttap\">The schedule for the group rooms currently reserved for the day. To reserve a room, please visit the circulation desk.  To get directions to a room, try tapping a reservation.</span>",
 		"shuttle" : "This is a map of the campus shuttle route."
 	};
 
@@ -240,11 +240,26 @@ function resetAttract() {
 // Enters attract mode
 function attractMode(){
 	// Show the slideshow
-	$("#attract-container").fadeIn();
+	//$("#attract-container").fadeIn();
+    transition("#attract-container");
 	
 	// Set timer to show next slide
 	attractTimeout = setTimeout(flipDown, hideWait * 1000);
 }
+
+
+// Make random transition to prevent screen burn
+function transition(element, callback) {
+
+    var types = ['slide', 'puff', 'clip', 'bounce', 'swirl'];
+    var i = Math.floor((Math.random() * types.length)); 
+    console.log(types[i]);
+    $(element).toggle(types[i], {duration : 1000, complete : function(){
+        callback();
+    }});
+
+}
+
 
 // Highlight kiosk features
 function featureMode(){
@@ -254,7 +269,8 @@ function featureMode(){
 
 	//Show the feature image (place image path in featureData)
 	$("#feature-container img").prop("src", featureData[currentTab]);
-	$("#feature-container").fadeIn(function(){
+
+    transition("#feature-container", function(){
 		//Flip down first, so the correct tab is under the feature image
 		flipDown();	
 	});
@@ -262,9 +278,11 @@ function featureMode(){
 	
 	//After hideWait seconds, the feature image is hidden
 	attractTimeout = setTimeout(function(){
-		$("#feature-container").fadeOut();
+		//$("#feature-container").fadeOut();
+        transition("#feature-container", function(){
+            attractTimeout = setTimeout(featureMode, showWait * 1000);
+        });
 		//After showWait seconds, the cycle repeats with the next tab
-		attractTimeout = setTimeout(featureMode, showWait * 1000);
 	}, hideWait * 1000);
 }
 /**
@@ -297,12 +315,20 @@ function flipDown(){
 		attractTimeout = setTimeout(attractMode, showWait * 1000);
 }
 
+
+function iframeUnload(){
+    $('#computer-availability').attr('src','http://localhost/kiosk/white.html');
+}
+
 // Selects a tab
 function select(t){
 	
-    // Creates the groups table
 	if(t == "computers"){
         iframeLoad();
+	}
+    
+	if(t == "directions"){
+        iframeUnload();
 	}
     
 	// Creates the groups table
