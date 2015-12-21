@@ -8,7 +8,7 @@ var useFeature = true;
 var featureData = {
 		"hours" : /* replace me -> */ "ads/banksy.jpg",
 		"computers" : /* replace me -> */ "ads/directions.jpg",
-		"directions" : /* replace me -> */ "ads/dashing.jpg",
+		"directions" : /* replace me -> */ "ads/banksy.jpg",
 		"groups" : /* replace me -> */ "ads/obey.jpg",
 		"shuttle" : /* replace me -> */ "ads/shuttlesomething.jpg",
 	}
