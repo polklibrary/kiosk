@@ -1,4 +1,4 @@
-# kiosk
+# Lobby Kiosk
 
 This is not intended to be used by others.
 
