@@ -3,10 +3,12 @@
 	<head>
 		<meta content="width=device-width,minimum-scale=1.0,maximum-scale=1.0;  user-scalable=no" name="viewport">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <script src="https://apis.google.com/js/client.js"></script>
 		<script src="jquery-1.10.2.min.js"></script>
 		<script src="jquery-ui.min.js"></script>
 		<script src="jquery.swirl.eff.js"></script>
 		<script src="jquery.tcycle.js"></script>	
+		<script src="gcal.js"></script>	
 		<link rel="stylesheet" type="text/css" href="kiosk.css"/>
 		<link rel="stylesheet" type="text/css" href="jquery-ui.theme.css"/>
 		<script src="mapdata.js"></script>
@@ -164,17 +166,13 @@
 			<div class="content-section" id="groups-div">
 				<div class="sign">
 					<div class="sign-header">
-						Today's Study Group Room Schedule
+						Group Study Rooms Schedule
 					</div>
-					<table id="groups-table">
-						<tr class="dark-grey">
-							<th width="10%"></th>
-							<th class="group-col" width="20%">Small Group Room</th>
-							<th class="group-col" width="20%">Large Group Room</th>
-							<th class="group-col" width="20%">3rd Floor North Group Room</th>
-							<th class="group-col" width="20%">3rd Floor South Group Room</th>
-						</tr>
-					</table>
+                    
+                    <div id="group-container">
+                    </div>
+                    <div class="clear"></div>
+                    
 					<span id="groups-info">To reserve a room for your study group, please visit the circulation desk or go to uwosh.edu/library/groupfinder.</span>
 				</div>
 			</div>

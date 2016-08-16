@@ -1,3 +1,9 @@
+jQuery.fn.scrollTo = function(elem, adjust) { 
+    $(this).scrollTop($(this).scrollTop() - $(this).offset().top + $(elem).offset().top + adjust); 
+    return this; 
+};
+
+
 // Currently viewed tab
 var currentTab = "";
 
@@ -13,10 +19,11 @@ var featureData = {
 		"shuttle" : /* replace me -> */ "ads/shuttlesomething.jpg",
 	}
 
+    
 // Web service URLs
-var groupsUrl = "http://www.uwosh.edu/library/ws/getGroupFinderEvents?alt=jsonp&callback=?";
-var hoursUrl = "http://www.uwosh.edu/library/ws/getLibraryHours?v=2&alt=jsonp&callback=?";
-var computerUrl = "http://www.uwosh.edu/library/computer_availability/computer_availability_plain?mode=kiosk";
+//var groupsUrl = "http://www.uwosh.edu/library/ws/getGroupFinderEvents?alt=jsonp&callback=?";
+var hoursUrl = "http://www.uwosh.edu/library/hours_feed?fmt=jsonp&callback=?";
+var computerUrl = "http://www.uwosh.edu/library/getComputerAvailabilityFrame?mode=kiosk";
 
 // Reference for the group table 
 var groupRoomIDs = {"Small Group Room" : "sgr", "Large Group Room" : "lgr", "3rd Floor North Group Room" : "3fngr", "3rd Floor South Group Room" : "3fsgr"};
@@ -172,16 +179,40 @@ function checkDataForCorruptions(force_hours, force_groups) {
     
     // Groups
     if ($.isEmptyObject(groupsData) || force_groups){
-        $.getJSON(groupsUrl, function(data, status){
-            if (status == "success") {
-                console.log('SUCCESS: get json groups');
-                groupsData = {};
-                $.extend(true, groupsData, data);
-                loadGroups();
-            } else {
-                console.log("FAILED: Group Connection");
-            }
-        });
+        
+        var process = function(id){
+            var start = new Date();
+            start.setHours(0);
+            start.setMinutes(0);
+            start.setSeconds(0);
+            
+            var end = new Date();
+            end.setHours(23);
+            end.setMinutes(59);
+            end.setSeconds(59);
+            GCAL.APIKEY = 'AIzaSyCcsz_ZN1rNDYzF1ha84Fn_p8ZzgNEyXo4';
+            GCAL.get_events(id, start, end, function(data){
+                var contents = [];
+                for (var i in data.result.items) {
+                    var obj = data.result.items[i];
+                    summary = obj.summary;
+                    if (typeof summary === 'undefined')
+                        summary = 'Private';
+                    contents.push({
+                        'start': new Date(obj.start.dateTime),
+                        'end': new Date(obj.end.dateTime),
+                        'summary': summary,
+                    });
+                }
+                groupsData[data.result.summary] = contents;
+            });
+        }
+        
+        process('uwosh.edu_tkcbj196ms5d9jdnvnlrce2i90@group.calendar.google.com');
+        process('uwosh.edu_h157e20v3tccouak2ougfncqa0@group.calendar.google.com');
+        process('uwosh.edu_v2i8scsqfmn7hanabro28iurc4@group.calendar.google.com');
+        process('uwosh.edu_43eh72k76gj9a6a79t3ss1vvn4@group.calendar.google.com');
+        console.log('SUCCESS: processed groups');
     }
     
 }
@@ -256,6 +287,7 @@ function transition(element, callback) {
     console.log(types[i]);
     $(element).toggle(types[i], {duration : 1000, complete : function(){
         callback();
+        positionGroups();
     }});
 
 }
@@ -470,126 +502,220 @@ function showDestinationBox(leftside){
 
 // Creates the hours page
 function loadHours(){
-	// Remove the existing hours page
-	$("#left-hours ul li").remove();
-	$("#right-hours ul li").remove();
-	// Switch for light/dark grey backgrounds
-	var light = true;
-	var count = 0;
-    hoursStatus = '';
-	for (var i in hoursData["times"]){
-		// Parse open and close times into date objects
-		if(count < 7){
-			var open = new Date(parseInt(hoursData["times"][i]["open_loc"]) * 1000);
-			var close = new Date(parseInt(hoursData["times"][i]["close_loc"]) * 1000);
-			// Build hours lists
-			var leftli = $("#left-hours ul").append("<li" + (count == 0 ? " style='font-weight:bold;'" : "") + " class=\"" + ((light = !light) ? "light-grey" : "dark-grey") + "\">" + getWeekday(open.getDay(), i) + "</li>");
-			var timeString = getTimeString(open.getHours(), open.getMinutes()) + " - " + getTimeString(close.getHours(), close.getMinutes());
-			if (hoursData["times"][i]["is_open"] == '0' || hoursData["times"][i]["is_open"] == 0)
-                timeString = 'Library Closed';
-            if(hoursData["times"][i]["content"].indexOf("[status=") == 0){
-				timeString = hoursData["times"][i]["content"].substring(hoursData["times"][i]["content"].indexOf("=") +1,hoursData["times"][i]["content"].length -1); 
-                if(i == 0) {
-                    hoursStatus = timeString;
-                    console.log('set status: ' + hoursStatus);
-                }
-            }	
-			var rightli = $("#right-hours ul").append("<li" + (count == 0 ? " style='font-weight:bold;'" : "") + " class=\"" + (light ? "light-grey" : "dark-grey") + "\">" + timeString + "</li>");
-			
-		}
-		count++;
-	}
-	setTimeout(function(){$("#hours-shadow").css({"height":$("#left-hours ul").height(),"left":$("#left-hours").offset()["left"], "top":$("#left-hours").offset()["top"], "width":$("#left-hours ul").width() + $("#right-hours ul").width()});}, 500);
+    $("#right-hours ul li").remove();
+    $("#left-hours ul li").remove();
+    var days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    
+    if (!$.isEmptyObject(hoursData)) {
+        for (var j in hoursData) {
+            hours = hoursData[j];
+            for (var i in hours) {
+            
+                var today = hours[i][0];
+                var start = new Date(today.start*1000);
+                var end = new Date(today.end*1000);
+                
+                var label = $('<li>').html(  days[start.getDay()] ).addClass('light-grey');
+                var info = $('<li>').html('Error').addClass('light-grey');
+                
+                if (today.description != '' && today.description != 'nothing to show')
+                    info = $(info).html(today.description);
+                else if (today.is_open)
+                    info = $(info).html(format_hours(start) + ' - ' + format_hours(end));
+                else 
+                    info = $(info).html('Closed');
+                    
+                $("#left-hours ul").append(label);
+                $("#right-hours ul").append(info);
+                
+            }
+        }
+    } 
+    
 }
+
 
 // Creates the hours header
 function loadHoursHeader() {
-    if (hoursStatus != '')
-        $("#header-hours").html('Open Today: ' + hoursStatus);
-    else if (hoursData['currently_is_open'] == 1 || hoursData['currently_is_open'] == '1')
-        $("#header-hours").html(hoursData["current_status_text"]);
-    else
-        $("#header-hours").html('Library Closed');
+    
+    if (!$.isEmptyObject(hoursData)) {
+        var hours = hoursData[0];
+        var today = null;
+        for (var i in hours) {
+            today = hours[i][0];
+            break; // just get first item
+        }
+        
+        var start = new Date(today.start*1000);
+        var end = new Date(today.end*1000);
+        if (today.description != '')
+            $("#header-hours").html('Open: ' + today.description);
+        else if (today.is_open)
+            $("#header-hours").html('Open: ' + format_hours(start) + ' - ' + format_hours(end));
+        else 
+            $("#header-hours").html('Closed: ' + format_hours(start) + ' - ' + format_hours(end));
+    } 
 }
 
-// Creates the groups table
-function loadGroups(){
-	// Empty old table
-	$(".group-row").remove();
-	// Start at 7:00 AM
-	var t = new Date(0, 0, 0, 7, 0, 0, 0);
-	// Switch for light/dark grey backgrounds
-	var light = false;
-	
-	// Build blank table for future use
-	while(t.getHours() != 1){
-		$("#groups-table").append('<tr id="group' + t.getHours() + "" + t.getMinutes() + '" class="' + ((light = !light) ? "light-grey" : "dark-grey") + ' group-row"><th>' + getTimeString(t.getHours(), t.getMinutes()) + '</th><td class="sgr"></td><td class="lgr"></td><td class="3fngr"></td><td class="3fsgr"></td></tr>');
-		// Iterate by half an hour
-		t.setMinutes(t.getMinutes() + 30);
-	}
-	
-	for (i in groupsData["today"]){
-		var group = groupsData["today"][i];
-		// Parse start and end times into date objects
-		var start= createDate(group["start"]);
-		var end = createDate(group["end"]);
+
+function loadGroupsTimes(){
+    
+    for (var h=0; h<4; h++) {
+        var ul = $('<ul>');
+    
+        for (var i=0; i<24; i++) {
+            for (var j=0; j<60; j+=15) {
+                var li = $('<li>').addClass('hour-'+i+'-'+j).html(getTimeString(i,j));
+                $(ul).append(li);
+            }
+        }
+        $('#group-container').append(ul);
         
-		// Index to record which block is being modified
-		var n = 0;
-		while(start < end){
-			var temp = new Date(start.getTime());
-			// Iterate by half an hour
-			start.setMinutes(start.getMinutes() + 30);
-			// Modify the appropriate table element to show a group is scheduled
-			$("#group" + temp.getHours() + "" + temp.getMinutes() + " ." + groupRoomIDs[group["location"]]).each(function(){
-				if(n == 0) $(this).text(group["title"]).css({"border-top":"1px solid #666666","font-weight":"bold"});
-				if(n == 1) $(this).text(getTimeString((temp.getMinutes() >= 30 ? temp.getHours() : temp.getHours() - 1), (temp.getMinutes() >= 30 ? temp.getMinutes() - 30 : 30)) + " - " + getTimeString(end.getHours(), end.getMinutes()));
-				if(start.getTime() == end.getTime()) $(this).css("border-bottom","1px solid #666666");
-				$(this).css("background-color","#97E5A3");
-			});
-			n++;
-		}
-	}
+    }
+}
+
+
+function loadGroups(){
+    console.log('loadGroups()');
+    $('#group-container').empty();
+    loadGroupsTimes();
+
+    var index = 1;
+    for (var i in groupsData) {
+        var room = groupsData[i];
+        var label = $('<li>').addClass('room-label').html(i);
+        $('#group-container').find('ul:nth-child(' + index +')').prepend(label);
+        for (var j in room) {
+            var event = room[j];
+            
+            var scls = 'li.hour-' + event.start.getHours() + '-' + event.start.getMinutes();
+            $('#group-container').find('ul:nth-child(' + index +')').find(scls).addClass('group-event-start').html(event.summary);
+            
+            var ecls = 'li.hour-' + event.end.getHours() + '-' + event.end.getMinutes();
+            $('#group-container').find('ul:nth-child(' + index +')').find(ecls).addClass('group-event-end');
+
+        }
+        index++;
+    }
+    
+    $('#group-container ul li').each(function(){
+        if ($(this).hasClass('group-event-start'))
+            $(this).nextUntil('.group-event-end').andSelf().addClass('coverage');
+    });
+    
+
+    
+    positionGroups();
+}
+
+function positionGroups(){
+    var now = new Date();
+    var min = 0;
+    if (now.getMinutes() > 45)
+        min = 45;
+    if (now.getMinutes() > 30)
+        min = 30;
+    if (now.getMinutes() > 15)
+        min = 15;
+    
+    var markercls = '.hour-' + now.getHours() + '-' + min;
+    console.log(markercls);
+    $('#group-container').find(markercls).addClass('timeline-current');
+    $('#group-container').scrollTo($('#group-container').find(markercls).first(), -200);
+}
+
+
+
+
+// // Creates the groups table
+// function loadGroups(){
+
+    // //$('#groups-iframe').contents().find(".agenda-more").remove();
+    
+    // //console.log($('#groups-iframe iframe').contents().find(".agenda-more").html());
+
+
+
+
+
+
+
+	// // Empty old table
+	// $(".group-row").remove();
+	// // Start at 7:00 AM
+	// var t = new Date(0, 0, 0, 7, 0, 0, 0);
+	// // Switch for light/dark grey backgrounds
+	// var light = false;
 	
-	// Highlight current time
-	var today = new Date();
-	var selector = "#group" + today.getHours() + "" + (today.getMinutes() < 30 ? 0 : 30);
+	// // Build blank table for future use
+	// while(t.getHours() != 1){
+		// $("#groups-table").append('<tr id="group' + t.getHours() + "" + t.getMinutes() + '" class="' + ((light = !light) ? "light-grey" : "dark-grey") + ' group-row"><th>' + getTimeString(t.getHours(), t.getMinutes()) + '</th><td class="sgr"></td><td class="lgr"></td><td class="3fngr"></td><td class="3fsgr"></td></tr>');
+		// // Iterate by half an hour
+		// t.setMinutes(t.getMinutes() + 30);
+	// }
 	
-	// Highlight the row for the current time slot
-	$(selector).addClass("current-time-row");
-	
-	// Show directions if a column is tapped
-	$(".sgr").mousedown(function(){
-		$("#SGR-box").trigger('mousedown');
-	});
-	$(".lgr").mousedown(function(){
-		$("#LGR-box").trigger('mousedown');
-	});
-	$(".3fngr").mousedown(function(){
-		$("#3FNGR-box").trigger('mousedown');
-	});
-	$(".3fsgr").mousedown(function(){
-		$("#3FSGR-box").trigger('mousedown');
-	});
-	
-	
-	// Refresh the groups data (if connected)
-	// checkConnection(function(ok){
-		// if(ok){
-			// $.getJSON(groupsUrl, function(data){
-				// $.extend(true, groupsData, data);
+	// for (i in groupsData["today"]){
+		// var group = groupsData["today"][i];
+		// // Parse start and end times into date objects
+		// var start= createDate(group["start"]);
+		// var end = createDate(group["end"]);
+        
+		// // Index to record which block is being modified
+		// var n = 0;
+		// while(start < end){
+			// var temp = new Date(start.getTime());
+			// // Iterate by half an hour
+			// start.setMinutes(start.getMinutes() + 30);
+			// // Modify the appropriate table element to show a group is scheduled
+			// $("#group" + temp.getHours() + "" + temp.getMinutes() + " ." + groupRoomIDs[group["location"]]).each(function(){
+				// if(n == 0) $(this).text(group["title"]).css({"border-top":"1px solid #666666","font-weight":"bold"});
+				// if(n == 1) $(this).text(getTimeString((temp.getMinutes() >= 30 ? temp.getHours() : temp.getHours() - 1), (temp.getMinutes() >= 30 ? temp.getMinutes() - 30 : 30)) + " - " + getTimeString(end.getHours(), end.getMinutes()));
+				// if(start.getTime() == end.getTime()) $(this).css("border-bottom","1px solid #666666");
+				// $(this).css("background-color","#97E5A3");
 			// });
-		// }else{
-			// console.log("no connection");
+			// n++;
 		// }
+	// }
+	
+	// // Highlight current time
+	// var today = new Date();
+	// var selector = "#group" + today.getHours() + "" + (today.getMinutes() < 30 ? 0 : 30);
+	
+	// // Highlight the row for the current time slot
+	// $(selector).addClass("current-time-row");
+	
+	// // Show directions if a column is tapped
+	// $(".sgr").mousedown(function(){
+		// $("#SGR-box").trigger('mousedown');
+	// });
+	// $(".lgr").mousedown(function(){
+		// $("#LGR-box").trigger('mousedown');
+	// });
+	// $(".3fngr").mousedown(function(){
+		// $("#3FNGR-box").trigger('mousedown');
+	// });
+	// $(".3fsgr").mousedown(function(){
+		// $("#3FSGR-box").trigger('mousedown');
 	// });
 	
-	// Refresh the table once per minute
-	//if(currentTab == "groups"){
-	//	setTimeout(loadGroups, 60000);
-	//}
-	//setTimeout(attachGroups, 500); // in tracking.js
-}
+	
+	// // Refresh the groups data (if connected)
+	// // checkConnection(function(ok){
+		// // if(ok){
+			// // $.getJSON(groupsUrl, function(data){
+				// // $.extend(true, groupsData, data);
+			// // });
+		// // }else{
+			// // console.log("no connection");
+		// // }
+	// // });
+	
+	// // Refresh the table once per minute
+	// //if(currentTab == "groups"){
+	// //	setTimeout(loadGroups, 60000);
+	// //}
+	// //setTimeout(attachGroups, 500); // in tracking.js
+// }
 
 function createDate(dateStr) {
     //dateStr example is 2014/12/04 09:00:00 GMT-6
@@ -605,32 +731,32 @@ function createDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Returns the string representation of a weekday
-function getWeekday(d, o){
-	// Check if the day is today or tomorrow
-	if(o == 0){
-		return "Today";
-	}else if(o == 1){
-		return "Tomorrow";
-	}
-	// Return the string representation of the weekday
-	switch(d){
-		case 0:
-			return "Sunday";
-		case 1:
-			return "Monday";
-		case 2:
-			return "Tuesday";
-		case 3:
-			return "Wednesday";
-		case 4:
-			return "Thursday";
-		case 5:
-			return "Friday";
-		case 6:
-			return "Saturday";
-	}
-}
+// // Returns the string representation of a weekday
+// function getWeekday(d, o){
+	// // Check if the day is today or tomorrow
+	// if(o == 0){
+		// return "Today";
+	// }else if(o == 1){
+		// return "Tomorrow";
+	// }
+	// // Return the string representation of the weekday
+	// switch(d){
+		// case 0:
+			// return "Sunday";
+		// case 1:
+			// return "Monday";
+		// case 2:
+			// return "Tuesday";
+		// case 3:
+			// return "Wednesday";
+		// case 4:
+			// return "Thursday";
+		// case 5:
+			// return "Friday";
+		// case 6:
+			// return "Saturday";
+	// }
+// }
 
 // Get simple string for hours/minutes (only meant for half-hour intervals)
 function getTimeString(h, m){
@@ -679,5 +805,30 @@ function iframeLoadMessage(event) {
     $('#computer-availability-failure').hide();
 }
 window.addEventListener("message", iframeLoadMessage, false);
+
+
+
+
+function format_hours(date) {
+
+    var ampm = "am";
+    var h = date.getHours();
+    var m = date.getMinutes();
+    
+    if (h >= 12) 
+        ampm = "pm";
+    if (h > 12) 
+        h = h - 12;
+    if (m < 10)
+        m = '0' + m; // 0 pad it
+        
+    if (h == 0) 
+        return "Midnight";
+    else if (h == 12) 
+        return "Noon";
+    else
+        return h + ':' + m + ' ' + ampm;
+    
+}
 
 
