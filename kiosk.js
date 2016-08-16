@@ -12,10 +12,10 @@ var useFeature = true;
 
 // Put feature mode images (for showcasing kiosk features) here.
 var featureData = {
-		"hours" : /* replace me -> */ "ads/banksy.jpg",
-		"computers" : /* replace me -> */ "ads/directions.jpg",
-		"directions" : /* replace me -> */ "ads/banksy.jpg",
-		"groups" : /* replace me -> */ "ads/obey.jpg",
+		"hours" : /* replace me -> */ "ads/downstairs.jpg",
+		"computers" : /* replace me -> */ "ads/downstairs.jpg",
+		"directions" : /* replace me -> */ "ads/downstairs.jpg",
+		"groups" : /* replace me -> */ "ads/downstairs.jpg",
 		"shuttle" : /* replace me -> */ "ads/shuttlesomething.jpg",
 	}
 
