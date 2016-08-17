@@ -174,17 +174,17 @@ var advertisement_pause_thread = null;
 function advertisements() {
     var timer = 0;
     advertisement_thread = setInterval(function(){
-        if (timer == 5) {
+        if (timer == 10) { // At 10 seconds show ad
             transition($('#advertisements').find('img').eq(advertisement_index), function(){
                 flipDown();
             });
         }
-        if (timer > 10) {
+        if (timer > 20) { // At 20 seconds show ad
             transition($('#advertisements').find('img').eq(advertisement_index), function(){
                 
             });
             next_advertisement();
-            timer = 0;
+            timer = 0; // restart timer
         }
         timer++;
     }, 1000); 
@@ -211,7 +211,7 @@ function advertisements_pause() {
     $('#advertisements').find('img').eq(advertisement_index).hide();
     advertisement_pause_thread = setTimeout(function(){
         advertisements(); // Turn back on
-    }, 60*1000);
+    }, 60*1000); // At 60 resume ad cycle
 }
 
 
