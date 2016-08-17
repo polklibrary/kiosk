@@ -30,7 +30,7 @@ var groupRoomIDs = {"Small Group Room" : "sgr", "Large Group Room" : "lgr", "3rd
 
 var attractTimeout = {};
 // Seconds to wait before entering attract mode (since last interaction)
-var attractWait = 90; // 15min=900
+var attractWait = 60; // 15min=900
 // Seconds to wait before hiding attract mode to show the next tab
 var hideWait = 10; //10
 // Seconds to show tab for before going back into attract mode
