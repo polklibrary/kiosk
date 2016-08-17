@@ -181,7 +181,7 @@ function advertisements() {
         }
         if (timer > 20) { // At 20 seconds show ad
             transition($('#advertisements').find('img').eq(advertisement_index), function(){
-                
+                positionGroups();
             });
             next_advertisement();
             timer = 0; // restart timer
@@ -423,11 +423,11 @@ function iframeUnload(){
 function select(t){
 	
 	if(t == "computers"){
-        iframeLoad();
+        //iframeLoad();
 	}
     
 	if(t == "directions"){
-        iframeUnload();
+        //iframeUnload();
 	}
     
 	// Creates the groups table
@@ -670,8 +670,6 @@ function loadGroups(){
             $(this).nextUntil('.group-event-end').andSelf().addClass('coverage');
     });
     
-
-    
     positionGroups();
 }
 
@@ -688,6 +686,7 @@ function positionGroups(){
     var markercls = '.hour-' + now.getHours() + '-' + min;
     console.log(markercls);
     $('#group-container').find(markercls).addClass('timeline-current');
+    console.log('scrolling to position');
     $('#group-container').scrollTo($('#group-container').find(markercls).first(), -200);
 }
 
