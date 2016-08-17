@@ -11,13 +11,13 @@ var currentTab = "";
 var useFeature = true;
 
 // Put feature mode images (for showcasing kiosk features) here.
-var featureData = {
-		"hours" : /* replace me -> */ "ads/downstairs.jpg",
-		"computers" : /* replace me -> */ "ads/downstairs.jpg",
-		"directions" : /* replace me -> */ "ads/downstairs.jpg",
-		"groups" : /* replace me -> */ "ads/downstairs.jpg",
-		"shuttle" : /* replace me -> */ "ads/shuttlesomething.jpg",
-	}
+// var featureData = {
+		// "hours" : /* replace me -> */ "ads/downstairs.jpg",
+		// "computers" : /* replace me -> */ "ads/downstairs.jpg",
+		// "directions" : /* replace me -> */ "ads/downstairs.jpg",
+		// "groups" : /* replace me -> */ "ads/downstairs.jpg",
+		// "shuttle" : /* replace me -> */ "ads/shuttlesomething.jpg",
+	// }
 
     
 // Web service URLs
@@ -28,13 +28,13 @@ var computerUrl = "http://www.uwosh.edu/library/getComputerAvailabilityFrame?mod
 // Reference for the group table 
 var groupRoomIDs = {"Small Group Room" : "sgr", "Large Group Room" : "lgr", "3rd Floor North Group Room" : "3fngr", "3rd Floor South Group Room" : "3fsgr"};
 
-var attractTimeout = {};
+//var attractTimeout = {};
 // Seconds to wait before entering attract mode (since last interaction)
-var attractWait = 60; // 15min=900
+//var attractWait = 60; // 15min=900
 // Seconds to wait before hiding attract mode to show the next tab
-var hideWait = 10; //10
+//var hideWait = 10; //10
 // Seconds to show tab for before going back into attract mode
-var showWait = 10; //30
+//var showWait = 10; //30
 
 var blipTimeout = {};
 var closeMapTimeout = {};
@@ -79,10 +79,17 @@ $(document).ready(function(){
     },1200000);  // 20 minutes = 1200000
 
 	// Reset attract timer on any click
-	$("html").mousedown(resetAttract);
+	$("html").mousedown(function(){
+        advertisements_pause();
+    });
 	// Detect clicks on iframe (don't think it actually works - might want to look at this if anything doesn't seem to work right)
-	bindEvent(document.getElementsByTagName("body")[0], "focusout", resetAttract);
-	//$(document).focusout(resetAttract);
+	//bindEvent(document.getElementsByTagName("body")[0], "focusout", resetAttract);
+	$(document).focusout(function(){
+        advertisements_pause();
+    });
+    $('body').focusout(function(){
+        advertisements_pause();
+    });
 	
 	// Tab navigation
 	$(".tab").mousedown(function(){
@@ -140,11 +147,13 @@ $(document).ready(function(){
 	}
 	
 	// Start in attract/feature mode when page loaded
-	if(useFeature){
-		attractTimeout = setTimeout(featureMode, attractWait * 1000);
-	}else{
-		attractMode();
-	}
+	// if(useFeature){
+		// attractTimeout = setTimeout(featureMode, attractWait * 1000);
+	// }else{
+		// attractMode();
+	// }
+    
+    advertisements(); // Start Ads
 });
 
 window.oncontextmenu = function(event) {
@@ -152,6 +161,64 @@ window.oncontextmenu = function(event) {
     event.stopPropagation();
     return false;
 };
+
+
+
+
+/*
+    NEW AD MODE
+*/
+var advertisement_index = 0;
+var advertisement_thread = null;
+var advertisement_pause_thread = null;
+function advertisements() {
+    var timer = 0;
+    advertisement_thread = setInterval(function(){
+        if (timer == 5) {
+            transition($('#advertisements').find('img').eq(advertisement_index), function(){
+                flipDown();
+            });
+        }
+        if (timer > 10) {
+            transition($('#advertisements').find('img').eq(advertisement_index), function(){
+                
+            });
+            next_advertisement();
+            timer = 0;
+        }
+        timer++;
+    }, 1000); 
+}
+
+function next_advertisement(){
+    advertisement_index++;
+    if (advertisement_index >= $('#advertisements').find('img').length)
+        advertisement_index = 0;
+}
+
+function transition(element, callback) {
+    var types = ['slide', 'puff', 'clip', 'bounce', 'swirl'];
+    var i = Math.floor((Math.random() * types.length)); 
+    console.log(types[i]);
+    $(element).toggle(types[i], {duration : 1000, complete : function(){
+        callback();
+    }});
+}
+ 
+function advertisements_pause() {
+    clearTimeout(advertisement_pause_thread); // Reset
+    clearInterval(advertisement_thread); // Turn off
+    $('#advertisements').find('img').eq(advertisement_index).hide();
+    advertisement_pause_thread = setTimeout(function(){
+        advertisements(); // Turn back on
+    }, 60*1000);
+}
+
+
+
+
+
+
 
 
 // David:  Process to be run
@@ -226,7 +293,7 @@ function ADA_Helper() {
     var ada_thread = null;
     $(document).mousemove(function(e){
         if (pixel_travel(x,e.pageX,100) || pixel_travel(y,e.pageY,100)) {
-            resetAttract(); // Clear any ads
+            advertisements_pause(); // Clear any ads
             clearTimeout(ada_thread);
             $('body').removeClass('cursor-off');
             $('body').addClass('cursor-on');
@@ -255,75 +322,75 @@ function closeMap() {
 }
 
 // Breaks attract mode and resets the interaction timer
-function resetAttract() {
-	// Hide the slideshow
-	$("#attract-container, #feature-container").hide();
-	// Reset the timer
-	if(attractTimeout != {}){
-		clearTimeout(attractTimeout);
-	}
-	// Refocus body (necessary for detecting iframe clicks) (don't think it actually works - might want to look at this if anything doesn't seem to work right)
-	document.getElementsByTagName("body")[0].focus();
-	// Restart the timer
-	attractTimeout = setTimeout((useFeature ? featureMode : attractMode), attractWait * 1000);
-}
+// function resetAttract() {
+	// // Hide the slideshow
+	// $("#attract-container, #feature-container").hide();
+	// // Reset the timer
+	// if(attractTimeout != {}){
+		// clearTimeout(attractTimeout);
+	// }
+	// // Refocus body (necessary for detecting iframe clicks) (don't think it actually works - might want to look at this if anything doesn't seem to work right)
+	// document.getElementsByTagName("body")[0].focus();
+	// // Restart the timer
+	// attractTimeout = setTimeout((useFeature ? featureMode : attractMode), attractWait * 1000);
+// }
 
 // Enters attract mode
-function attractMode(){
-	// Show the slideshow
-	//$("#attract-container").fadeIn();
-    transition("#attract-container");
+// function attractMode(){
+	// // Show the slideshow
+	// //$("#attract-container").fadeIn();
+    // transition("#attract-container");
 	
-	// Set timer to show next slide
-	attractTimeout = setTimeout(flipDown, hideWait * 1000);
-}
+	// // Set timer to show next slide
+	// attractTimeout = setTimeout(flipDown, hideWait * 1000);
+// }
 
 
 // Make random transition to prevent screen burn
-function transition(element, callback) {
+// function transition(element, callback) {
 
-    var types = ['slide', 'puff', 'clip', 'bounce', 'swirl'];
-    var i = Math.floor((Math.random() * types.length)); 
-    console.log(types[i]);
-    $(element).toggle(types[i], {duration : 1000, complete : function(){
-        callback();
-        positionGroups();
-    }});
+    // var types = ['slide', 'puff', 'clip', 'bounce', 'swirl'];
+    // var i = Math.floor((Math.random() * types.length)); 
+    // console.log(types[i]);
+    // $(element).toggle(types[i], {duration : 1000, complete : function(){
+        // callback();
+        // positionGroups();
+    // }});
 
-}
+// }
 
 
 // Highlight kiosk features
-function featureMode(){
+// function featureMode(){
 
-	// Close any map left open before next add
-	closeMap();
+	// // Close any map left open before next add
+	// closeMap();
 
-	//Show the feature image (place image path in featureData)
-	$("#feature-container img").prop("src", featureData[currentTab]);
+	// //Show the feature image (place image path in featureData)
+	// $("#feature-container img").prop("src", featureData[currentTab]);
 
-    transition("#feature-container", function(){
-		//Flip down first, so the correct tab is under the feature image
-		flipDown();	
-	});
+    // transition("#feature-container", function(){
+		// //Flip down first, so the correct tab is under the feature image
+		// flipDown();	
+	// });
 
 	
-	//After hideWait seconds, the feature image is hidden
-	attractTimeout = setTimeout(function(){
-		//$("#feature-container").fadeOut();
-        transition("#feature-container", function(){
-            attractTimeout = setTimeout(featureMode, showWait * 1000);
-        });
-		//After showWait seconds, the cycle repeats with the next tab
-	}, hideWait * 1000);
-}
+	// //After hideWait seconds, the feature image is hidden
+	// attractTimeout = setTimeout(function(){
+		// //$("#feature-container").fadeOut();
+        // transition("#feature-container", function(){
+            // attractTimeout = setTimeout(featureMode, showWait * 1000);
+        // });
+		// //After showWait seconds, the cycle repeats with the next tab
+	// }, hideWait * 1000);
+// }
 /**
 * Update the flipDown function if you add another tab (or re-add shuttle)
 **/
 // Cycles through the tabs (used during attract mode)
 function flipDown(){
 	// Hide the slideshow
-	$("#attract-container").fadeOut();
+	//$("#attract-container").fadeOut();
 	
 	// Flip down one tab
 	if(currentTab == "hours"){
@@ -343,8 +410,8 @@ function flipDown(){
 	}*/
 	
 	// Reset the timer to show the slideshow
-	if(!useFeature)
-		attractTimeout = setTimeout(attractMode, showWait * 1000);
+	//if(!useFeature)
+	//	attractTimeout = setTimeout(attractMode, showWait * 1000);
 }
 
 
