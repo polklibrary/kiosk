@@ -393,9 +393,19 @@ function flipDown(){
 	//$("#attract-container").fadeOut();
 	
 	// Flip down one tab
-	if(currentTab == "hours"){
-		select("computers");
-	}else if(currentTab == "computers"){
+	// if(currentTab == "hours"){
+		// select("computers");
+	// }else if(currentTab == "computers"){
+		// select("directions");
+	// }else if(currentTab == "directions"){
+		// select("groups");
+	// }else if(currentTab == "groups" || currentTab == ""){
+		// select("hours");
+	// }
+    
+    if(currentTab == "hours"){
+	//	select("computers");
+	//}else if(currentTab == "computers"){
 		select("directions");
 	}else if(currentTab == "directions"){
 		select("groups");
@@ -583,13 +593,10 @@ function loadHours(){
                 var end = new Date(today.end*1000);
                 
                 
-                var closedDate = new Date(today.start*1000);
-                var parts = i.split('-');
-                closedDate.setFullYear(parseInt(parts[0]));
-                closedDate.setMonth(parseInt(parts[1])-1);
-                closedDate.setDate(parseInt(parts[2]));
+                var closedDate = new Date(i);
+                closedDate.setDate(closedDate.getDate() + 1);
                 console.log(closedDate);
-                console.log( days[closedDate.getDay()] );
+                
                 
                 var label = $('<li>').html(  days[start.getDay()] ).addClass('light-grey');
                 var info = $('<li>').html('Error').addClass('light-grey');
