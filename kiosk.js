@@ -23,7 +23,7 @@ var useFeature = true;
 // Web service URLs
 //var groupsUrl = "http://www.uwosh.edu/library/ws/getGroupFinderEvents?alt=jsonp&callback=?";
 var hoursUrl = "http://www.uwosh.edu/library/hours_feed?fmt=jsonp&callback=?";
-var computerUrl = "http://www.uwosh.edu/library/getComputerAvailabilityFrame?mode=kiosk";
+var computerUrl = "http://www.uwosh.edu/library/getComputers?alt=jsonp&callback=?";
 
 // Reference for the group table 
 var groupRoomIDs = {"Small Group Room" : "sgr", "Large Group Room" : "lgr", "3rd Floor North Group Room" : "3fngr", "3rd Floor South Group Room" : "3fsgr"};
@@ -64,8 +64,6 @@ $(document).ready(function(){
     // ADA 
     ADA_Helper();
 
-    // Load Computer Availability
-    iframeLoad();
 
     // Process to always look for any data failures, and try immediately resolve them every 2 second
     setInterval(function(){
@@ -321,119 +319,71 @@ function closeMap() {
 	clearTimeout(blipTimeout);
 }
 
-// Breaks attract mode and resets the interaction timer
-// function resetAttract() {
-	// // Hide the slideshow
-	// $("#attract-container, #feature-container").hide();
-	// // Reset the timer
-	// if(attractTimeout != {}){
-		// clearTimeout(attractTimeout);
-	// }
-	// // Refocus body (necessary for detecting iframe clicks) (don't think it actually works - might want to look at this if anything doesn't seem to work right)
-	// document.getElementsByTagName("body")[0].focus();
-	// // Restart the timer
-	// attractTimeout = setTimeout((useFeature ? featureMode : attractMode), attractWait * 1000);
-// }
-
-// Enters attract mode
-// function attractMode(){
-	// // Show the slideshow
-	// //$("#attract-container").fadeIn();
-    // transition("#attract-container");
-	
-	// // Set timer to show next slide
-	// attractTimeout = setTimeout(flipDown, hideWait * 1000);
-// }
-
-
-// Make random transition to prevent screen burn
-// function transition(element, callback) {
-
-    // var types = ['slide', 'puff', 'clip', 'bounce', 'swirl'];
-    // var i = Math.floor((Math.random() * types.length)); 
-    // console.log(types[i]);
-    // $(element).toggle(types[i], {duration : 1000, complete : function(){
-        // callback();
-        // positionGroups();
-    // }});
-
-// }
-
-
-// Highlight kiosk features
-// function featureMode(){
-
-	// // Close any map left open before next add
-	// closeMap();
-
-	// //Show the feature image (place image path in featureData)
-	// $("#feature-container img").prop("src", featureData[currentTab]);
-
-    // transition("#feature-container", function(){
-		// //Flip down first, so the correct tab is under the feature image
-		// flipDown();	
-	// });
-
-	
-	// //After hideWait seconds, the feature image is hidden
-	// attractTimeout = setTimeout(function(){
-		// //$("#feature-container").fadeOut();
-        // transition("#feature-container", function(){
-            // attractTimeout = setTimeout(featureMode, showWait * 1000);
-        // });
-		// //After showWait seconds, the cycle repeats with the next tab
-	// }, hideWait * 1000);
-// }
 /**
 * Update the flipDown function if you add another tab (or re-add shuttle)
 **/
 // Cycles through the tabs (used during attract mode)
 function flipDown(){
-	// Hide the slideshow
-	//$("#attract-container").fadeOut();
-	
-	// Flip down one tab
-	// if(currentTab == "hours"){
-		// select("computers");
-	// }else if(currentTab == "computers"){
-		// select("directions");
-	// }else if(currentTab == "directions"){
-		// select("groups");
-	// }else if(currentTab == "groups" || currentTab == ""){
-		// select("hours");
-	// }
-    
+
     if(currentTab == "hours"){
-	//	select("computers");
-	//}else if(currentTab == "computers"){
+		select("computers");
+	}else if(currentTab == "computers"){
 		select("directions");
 	}else if(currentTab == "directions"){
 		select("groups");
 	}else if(currentTab == "groups" || currentTab == ""){
 		select("hours");
 	}
-	
-	/*if(currentTab == "groups"){
-		select("shuttle");
-	}else if(currentTab == "shuttle" || currentTab == ""){
-		select("hours");
-	}*/
-	
-	// Reset the timer to show the slideshow
-	//if(!useFeature)
-	//	attractTimeout = setTimeout(attractMode, showWait * 1000);
 }
 
 
-function iframeUnload(){
+function loadComputers(){
     $('#computer-availability').attr('src','http://localhost/kiosk/white.html');
+    
+   	$.getJSON(computerUrl, function(response){
+        
+        var availability = AvailabilityCount(response['locations']['reference']);
+        $('#computers-container').find('.computers-1st-south .computers-available').text(availability['available']);
+        $('#computers-container').find('.computers-1st-south .computers-unavailable').text(availability['unavailable']);
+        
+        availability = AvailabilityCount(response['locations']['emc']);
+        $('#computers-container').find('.computers-1st-north .computers-available').text(availability['available']);
+        $('#computers-container').find('.computers-1st-north .computers-unavailable').text(availability['unavailable']);
+
+        availability = AvailabilityCount(response['locations']['checkout']);
+        $('#computers-container').find('.computers-circulation .computers-available').text(availability['available']);
+        $('#computers-container').find('.computers-circulation .computers-unavailable').text(availability['unavailable']);
+        
+        
+        availability = AvailabilityCount(response['locations']['govdocs']);
+        $('#computers-container').find('.computers-3rd-south .computers-available').text(availability['available']);
+        $('#computers-container').find('.computers-3rd-south .computers-unavailable').text(availability['unavailable']);
+        
+	});
+    
 }
+
+function AvailabilityCount(data) {
+    var available = 0;
+    var unavailable = 0;
+
+    for (var i in data){
+        if (data[i] == 0)
+            unavailable++;
+        else
+            available++;
+    }
+    return {'available':available,'unavailable':unavailable}
+}
+
+
+
 
 // Selects a tab
 function select(t){
 	
 	if(t == "computers"){
-        //iframeLoad();
+        loadComputers();
 	}
     
 	if(t == "directions"){
@@ -866,30 +816,6 @@ function bindEvent(element, type, handler) {
       element.attachEvent('on'+type, handler);
    }
 }
-
-// IFrame Load, adds failure handler
-function iframeLoad() {
-    clearTimeout(computerFailure); // In case one is running
-    computerFailure = setTimeout(function(){
-        console.log("FAILURE: COMPUTER AVAILABILITY");
-        $('#computer-availability').hide();
-        $('#computer-availability-failure').show();
-        iframeLoad(); // Try again
-    }, 5000);
-    $('#computer-availability').attr('src',computerUrl);
-}
-
-function iframeLoadMessage(event) {
-    if (event.origin.indexOf('http://www.uwosh.edu' ) != 0)
-        return;
-
-    console.log("SUCCESS: COMPUTER AVAILABILITY");
-    clearTimeout(computerFailure);
-    $('#computer-availability').show();
-    $('#computer-availability-failure').hide();
-}
-window.addEventListener("message", iframeLoadMessage, false);
-
 
 
 

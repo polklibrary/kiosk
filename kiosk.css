@@ -295,7 +295,6 @@ li {
 	width: 95%;
 	height: 85%;
 	margin: 5px auto;
-	box-shadow: 0px 0px 4px #666666;
 }
 
 #computer-availability-failure {
@@ -627,6 +626,90 @@ li {
     position: absolute;
     z-index: 10000;
 }
+
+
+#computers-container{
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#computers-container > .computers-listing {
+    margin: 0 auto;
+    width: 925px;
+}
+
+#computers-container > .computers-listing > div > div.computers-header-group{
+
+    background-color: #bbb;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    width: 280px;
+}
+
+#computers-container > .computers-listing > div > div.computers-header-available
+{
+    background-color: #bbb;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    width: 344px;
+}
+#computers-container > .computers-listing >  div > div.computers-header-unavailable
+{
+    background-color: #bbb;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    width: 280px;
+}
+
+
+
+
+#computers-container > .computers-listing >  div > div.computers-group{
+
+    background-color: #ddd;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 40px;
+    text-align: right;
+    width: 200px;
+}
+
+#computers-container > .computers-listing >  div > div.computers-available
+{
+    background-color: #5dc75d;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 51px;
+    padding: 22px;
+    text-align: center;
+    width: 300px;
+}
+#computers-container > .computers-listing >  div > div.computers-unavailable
+{
+    background-color: #ce7070;
+    border: 1px solid #999;
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 40px;
+    text-align: center;
+    width: 200px;
+}
+
+.clear{ clear: both }
+
 
 
 

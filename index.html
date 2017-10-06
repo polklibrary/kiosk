@@ -72,7 +72,7 @@
 		<div id="sidebar" class="light-grey">
 			<ul>
 				<li class="tab" id="hours-tab">Hours</li>
-				<!--<li class="tab" id="computers-tab">Computers</li>-->
+				<li class="tab" id="computers-tab">Computers</li>
 				<li class="tab" id="directions-tab">Directions</li>
 				<li class="tab" id="groups-tab">Study Groups</li>
                 <!--<li class="tab" id="shuttle-tab">Campus Shuttle</li>-->
@@ -109,10 +109,42 @@
 					<div class="sign-header">
 						Computer Availability
 					</div>
-					<div id="computers-container" class="dark-grey">
-                        <!-- Handle Iframe load by JS iframeLoad() -->
-						<iframe id="computer-availability" src="" frameBorder="0" scrolling="no"> </iframe>
-                        <div id="computer-availability-failure">Computer availability is currently unavailable.</div>
+					<div id="computers-container">
+                        
+                        <div class="computers-listing">
+                            <div class="computers-header">
+                                <div class="computers-header-group">Location</div>
+                                <div class="computers-header-available">Available</div>
+                                <div class="computers-header-unavailable">In Use</div>
+                            </div>
+                        
+                            <div class="clear"></div>
+                            
+                            <div class="computers-1st-south">
+                                <div class="computers-group">Polk 101</div>
+                                <div class="computers-available">&nbsp;</div>
+                                <div class="computers-unavailable">&nbsp;</div>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="computers-1st-north">
+                                <div class="computers-group">EMC</div>
+                                <div class="computers-available">&nbsp;</div>
+                                <div class="computers-unavailable">&nbsp;</div>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="computers-circulation">
+                                <div class="computers-group">Circulating Laptops</div>
+                                <div class="computers-available">&nbsp;</div>
+                                <div class="computers-unavailable">&nbsp;</div>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="computers-3rd-south">
+                                <div class="computers-group">3rd Floor South</div>
+                                <div class="computers-available">&nbsp;</div>
+                                <div class="computers-unavailable">&nbsp;</div>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
                     </div>
 				</div>
 			</div>
